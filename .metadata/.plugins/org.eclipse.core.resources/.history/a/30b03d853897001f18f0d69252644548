@@ -1,0 +1,54 @@
+package ex_241031;
+
+public class Csb806DTO {
+
+	int deptno;
+	String dname;
+	String dmail;
+	String password;
+
+	public Csb806DTO() {
+
+	}
+
+	public Csb806DTO(int deptno, String dname, String dmail, String password) {
+		super();
+		this.deptno = deptno;
+		this.dname = dname;
+		this.dmail = dmail;
+		this.password = password;
+	}
+
+	public int getDeptno() {
+		return deptno;
+	}
+
+	public void setDeptno(int deptno) {
+		this.deptno = deptno;
+	}
+
+	public String getDname() {
+		return dname;
+	}
+
+	public void setDname(String dname) {
+		this.dname = dname;
+	}
+
+	public String getDmail() {
+		return dmail;
+	}
+
+	public void setDmail(String dmail) {
+		this.dmail = dmail;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+}

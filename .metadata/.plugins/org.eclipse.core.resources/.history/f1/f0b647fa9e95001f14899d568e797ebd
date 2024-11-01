@@ -1,0 +1,201 @@
+package ex_241029;
+
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class Csb806Word extends JFrame {
+	// 전역으로 선언만 했음. 생성자에서 초기화 하면, 다른 곳에서 사용 가능
+	private JTextField wordField; // 영어단어 입력 필드
+	private JTextField meaningField; // 영어 뜻 입력 필드
+	private JPanel wordPanel; // 단어 표시할 필드
+
+	// 단어를 입시로 저장할 Map -> HashMap
+	// UI, 화면에 표시할 라벨
+	private Map<String, JLabel> wordLabelMap;
+	// 영어의 뜻을 저장하는 임시 공간.
+	private Map<String, String> wordMeaningLabelMap;
+	// 랜덤으로 단어 퀴즈 형식처럼 출력하기 위한 도구,
+	private Random random;
+
+	// 생성자를 이용해서 UI를 그리고, 임시 메모리 Map 공간에 단어를 입력 받고, 출력하고, 랜덤출력.
+
+	public Csb806Word() {
+		// 윈도우 창과 -> 최상위 프레임 필요함. 부모 클래스로 부터 상속 받아서,
+		// 그리기 도구를 장착.
+		// 창 제목
+		setTitle("Subin's Voca Program");
+		// 창 사이즈. 기본 크기.
+		setSize(600, 300);
+		// 창의 닫기를 클릭시, 정상 종료
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		// 임시 저장소 Map, 전역으로 선언만 한 인스턴스를, 생성자에게 초기화 작업을 함.
+		// 다른 곳에서 사용 가능
+		wordLabelMap = new HashMap<>();
+		wordMeaningLabelMap = new HashMap<String, String>();
+
+		// random 도구 초기화
+		random = new Random();
+
+		// 배치 관리자 이용해서, 입력 공간은 북, 단어 표시 공간, 중간에 표기.
+		setLayout(new BorderLayout());
+
+		//UI생성하기.
+		//상단 패널 - 단어를 입력하는 공간, 뜻을 입력하는 공간.
+		//인스턴스 당 하나의 입력 공간.
+		//최상위 프레임 창위에, 패널을 붙이는 역할 -> 패널 위에 JLabel 붙일 예정.
+		JPanel inputPanel = new JPanel();
+		//inputPanel -> 배치 관리자, flex,FlowLayout 나란히 배치.
+		inputPanel.setLayout(new FlowLayout());
+		
+		//패널에 붙이는 입력 공간
+		//영어 단어를 입력하는 1)라벨 2)입력란
+		//1. 라벨 붙이기, 화면, 이벤트 핸들러, 보통 1회용으로 많이 사용해서,
+		inputPanel.add(new JLabel("단어: "));
+		//2. 입력 공간 붙이기.
+		wordField = new JTextField(10);
+		inputPanel.add(wordField);
+
+		//영어 뜻 입력하는 1)라벨 2)입력란
+		inputPanel.add(new JLabel("뜻: "));
+		meaningField = new JTextField(10);
+		inputPanel.add(meaningField);
+
+		//단어를 추가하는 버튼
+		JButton addButton = new JButton("ADD");
+		inputPanel.add(addButton);
+
+		//랜덤으로 출력해주는 버튼
+		JButton randomButton = new JButton("RANDOM");
+		inputPanel.add(randomButton);
+
+		//save버튼
+		JButton saveButton = new JButton("SAVE");
+		inputPanel.add(saveButton);
+
+		//load버튼
+		JButton loadButton = new JButton("LOAD");
+		inputPanel.add(loadButton);
+		
+//==========================================================================
+		
+		//단어 출력 해주는 UI
+		wordPanel = new JPanel();
+		//wordPanel에서 배치 관리자, flex처럼 나란히 배치 FlowLayout 이용.
+//		wordPanel.setLayout(new FlowLayout());
+
+		add(inputPanel, BorderLayout.NORTH);
+		add(wordPanel, BorderLayout.CENTER);
+
+		addButton.addActionListener(e -> addWord());
+		randomButton.addActionListener(e -> showRandomWord());
+		saveButton.addActionListener(e -> saveWordsToFile());
+		loadButton.addActionListener(e -> loadWordsFromFile());
+
+		setVisible(true);
+	}
+
+	private void addWord() {
+		String word = wordField.getText();
+		String meaning = meaningField.getText();
+
+		if (!word.isEmpty() && !meaning.isEmpty()) {
+			JLabel wordLabel = new JLabel(word);
+			wordLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+			wordLabel.addMouseListener(new MouseAdapter() {
+				private boolean showMeaning = false;
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (!showMeaning) {
+						wordLabel.setText("뜻 : " + meaning);
+						showMeaning = true;
+					} else {
+						wordLabel.setText(word);
+						showMeaning = false;
+					}
+				}
+			});
+
+			wordLabelMap.put(word, wordLabel);
+			wordMeaningLabelMap.put(word, meaning);
+
+			wordPanel.add(wordLabel);
+			wordPanel.revalidate();
+			wordPanel.repaint();
+		} else {
+			JOptionPane.showMessageDialog(null, "단어와 뜻을 모두 입력해주세요.", "입력오류: 모두 입력해주세요", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	public void showRandomWord() {
+		if (wordLabelMap.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "단어가 입력 안됨", "먼저, 단어를 추가해주세요", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		for (JLabel jLabel : wordLabelMap.values()) {
+			jLabel.setVisible(false);
+		}
+
+		List<String> words = new ArrayList<>(wordLabelMap.keySet());
+		String randomWord = words.get(random.nextInt(words.size()));
+
+		wordLabelMap.get(randomWord).setVisible(true);
+	}
+
+	private void saveWordsToFile() {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter("c:\\Temp\\wordTest.txt"))) {
+			for (Map.Entry<String, String> entry : wordMeaningLabelMap.entrySet()) {
+				writer.write(entry.getKey() + "," + entry.getValue());
+				writer.newLine();
+			}
+			JOptionPane.showMessageDialog(null, "단어가 성공적으로 저장되었습니다.");
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "파일 저장 중 오류 발생: " + e.getMessage(), "저장 오류", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void loadWordsFromFile() {
+		try (BufferedReader reader = new BufferedReader(new FileReader("c:\\Temp\\wordTestCsv.csv"))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				String[] parts = line.split(",");
+				if (parts.length == 2) {
+					String word = parts[0].trim();
+					String meaning = parts[1].trim();
+					wordField.setText(word);
+					meaningField.setText(meaning);
+					addWord();
+				}
+			}
+			JOptionPane.showMessageDialog(null, "단어가 성공적으로 로드되었습니다.");
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "파일 읽기 중 오류 발생: " + e.getMessage(), "읽기 오류", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	public static void main(String[] args) {
+		new Csb806Word();
+	}
+}

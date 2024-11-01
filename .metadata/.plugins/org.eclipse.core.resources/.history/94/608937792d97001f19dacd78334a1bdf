@@ -1,0 +1,84 @@
+package ex_241031;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class Csb806Personal extends JFrame {
+	
+	private JTextField nameField;
+	private JTextField mailField;
+	private JTextField passwordField;
+	private JPanel memberPanel;
+	
+	private Map<String, JLabel> nameLabelMap;
+	private Map<String, String> mailLabelMap;
+	private Map<String, String> passwordLabelMap;
+	
+	public Csb806Personal() {
+		setTitle("Membership");
+		setSize(600,300);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+	nameLabelMap = new HashMap<>();
+	mailLabelMap = new HashMap<String, String>();
+	passwordLabelMap = new HashMap<String, String>();
+	
+	setLayout(new BorderLayout());
+	
+	JPanel inputPanel = new JPanel();
+	inputPanel.setLayout(new FlowLayout());
+	
+	inputPanel.add(new JLabel("이름:  "));
+	nameField = new JTextField(10);
+	inputPanel.add(nameField);
+	
+	inputPanel.add(new JLabel("이메일:  "));
+	mailField.add(new JTextField(10));
+	inputPanel.add(mailField);
+	
+	inputPanel.add(new JLabel("비밀번호:  "));
+	passwordField.add(new JTextField(10));
+	inputPanel.add(passwordField);
+	
+	JButton addButton = new JButton("추가");
+	inputPanel.add(addButton);
+	
+	JButton checkButton = new JButton("조회");
+	inputPanel.add(checkButton);
+	
+	memberPanel = new JPanel();
+	memberPanel.setLayout(new FlowLayout());
+	
+	add(inputPanel,BorderLayout.NORTH);
+	add(memberPanel, BorderLayout.CENTER);
+	
+//	addButton.addActionListener(e -> addinfo());
+//	checkButton.addActionListener(e -> checkinfo());
+//	
+	setVisible(true);
+	}
+	
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
